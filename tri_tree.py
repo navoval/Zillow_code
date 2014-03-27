@@ -3,7 +3,7 @@ __author__ = 'changyunglin'
 # Question 2: Implement insert and delete in a tri-nary tree.
 # finished build up Tri-Tree
 # finished print our Tri-Tree
-# haven't finish delete node, will update recently
+# haven't finish delete node, will update soon
 
 
 class Node:
