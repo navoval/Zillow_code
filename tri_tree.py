@@ -5,10 +5,9 @@ __author__ = 'changyunglin'
 # finished print our Tri-Tree
 # haven't finish delete node, will update soon
 
-
 class Node:
 
-    def __init__(self, data):
+    def __init__(self, data=None):
         self.root = None
         self.left = None
         self.right = None
@@ -17,6 +16,9 @@ class Node:
         self.level = None
 
     def insert(self, data):
+        '''
+        Insert element in Tri-Tree struct
+        '''
         if self.root is None:
             self.root = Node(data)
         else:
@@ -48,28 +50,33 @@ class Node:
 
     def lookUp(self, value, parent=None):
         '''
-        look up contain data
+        find look up data
         return node and node's parent if found or None
         '''
-        if value < self.left.data:
-            if self.root.left is None:
+        # look in the left tree
+        if value < self.data:
+            if self.left is None:
                 return None, None
             else:
-                return self.root.left.lookUp(value, self)
-        elif value == self.center.data:
-            if self.root.center is None:
+                return self.left.lookUp(value, self)
+        # look in the right tree
+        elif value > self.data:
+            if self.right is None:
                 return None, None
             else:
-                return self.center.lookUp(value, self)
-        elif value > self.right.data:
-            if self.root.right is None:
-                return None, None
-            else:
-                return self.root.right.lookUp(value, self)
+                return self.right.lookUp(value, self)
         else:
+            # find it
+            # this ccould also means, there is another center node.
+            if self.center is not None:
+                return self.center.lookUp(value, self)
             return self, parent
 
     def childrenCount(self):
+        '''
+        Count how many children a node have
+        '''
+
         count = 0
         if self.left:
             count += 1
@@ -79,14 +86,88 @@ class Node:
             count += 1
         return count
 
+    def deleteNode(self, node, parent):
+        '''
+        Consider three case by the number of children
+        '''
+        if node:
+            children_count = node.childrenCount()
+            if children_count == 0:  # it's leaf
+                if parent.left is node:
+                    parent.left = None
+                if parent.right is node:
+                    parent.right = None
+                if parent.center is node: # parent.center is node
+                    parent.center = None
+                del node
+
+            if children_count == 1:
+                # decide which is the child
+                if node.left:
+                    child = node.left
+                if node.right:
+                    child = node.right
+                if node.center:
+                    child = node.center
+                # link the current node's parent to current node's child
+                if parent:
+                    if parent.left is node:
+                        parent.left = child
+                    if parent.right is node:
+                        parent.right = child
+                    if parent.center is node:
+                        parent.center = child
+                del node
+
+            if children_count == 2:
+                if node.center is None:     # left and right like binary search tree
+                    parent = node
+                    successor = node.right
+                    while successor.left:
+                        parent = successor
+                        successor = successor.left
+                    # replace node by it's successor data
+                    node.data = successor.data
+                    # fix successor's parent's child
+                    if parent.left == successor:
+                        parent.left = successor.right
+                    else:
+                        parent.right = successor.right
+
+                else:   # center is not none
+                    # either 'center and left' or 'center and right'
+                    # however, because the data in the center node is the same
+                    # we can simply delete the center node without changing the balance
+                    if node.left is None:   # center and right
+                        del node.center
+                    else:   # node.right is None
+                        del node.center
+
+            if children_count == 3:
+            # replace the delete node with center node
+                del node.center
+
     def inorder(self, node):
+        '''
+        Inorder print
+        '''
         if node is not None:
             self.inorder(node.left)
             print(node.data)
             self.inorder(node.center)
             self.inorder(node.right)
 
+    def delete(self, value):
+        '''
+        Delete target node
+        '''
+        node, parent = self.lookUp(value)
+        self.deleteNode(node, parent)
+
     def printTree(self):
+        '''
+        Print out the tree structure and tell empty nodes.
+        '''
         self.root.level = 0
         queue = [self.root]
         out = []
@@ -120,31 +201,73 @@ class Node:
         print(''.join(out))
 
 
-# Test Cases
+
 l1 = [5, 4, 9, 5, 7, 2, 2]
-tree1 = Node(0)
+tree1 = Node()
+
 [tree1.insert(e) for e in l1]
-print "Test case 1: ",l1 
-print "Tree 1" 
+
+# Test Cases
+print "Test Case 1"
+print "Original Tree"
+print "="*80
+print "Tree element inorder"
+print tree1.inorder(tree1.root)
+print "="*40 + " Tree Structure " + "="*40
 print tree1.printTree()
 
-# Another test case
+print "="*80
+print'First delete tree'
+tree1.root.delete(7)
+print "Tree element inorder"
+print tree1.inorder(tree1.root)
+print "="*40 + " Tree Structure " + "="*40
+print tree1.printTree()
+
+print "="*80
+print'Second delete tree'
+tree1.root.delete(5)
+print "Tree element inorder"
+print tree1.inorder(tree1.root)
+print "="*40 + " Tree Structure " + "="*40
+print tree1.printTree()
+
+
+print
+print
+print "Test Case 2"
 l2 = [5, 4, 9, 5, 7, 2, 2, 9, 10]
-tree2 = Node(0)
+tree2 = Node()
+
 [tree2.insert(e) for e in l2]
-print "Test case 2: ", l2
-print "Tree 2"
+
+# Test Cases
+print "Original Tree"
+print "="*80
+print "Tree element inorder"
+print tree2.inorder(tree2.root)
+print "="*40 + " Tree Structure " + "="*40
 print tree2.printTree()
 
+print "="*80
+print'First delete tree'
+tree2.root.delete(7)
+print "Tree element inorder"
+print tree2.inorder(tree2.root)
+print "="*40 + " Tree Structure " + "="*40
+print tree2.printTree()
 
-# Output explain. I also listed out the Null part for each node.
-# For example, "4 center-Null  right-Null" means that 'center and right' under node 4 are Null
-# Original Tree
-# 5  
-# 4  center-Null  right-Null 5  left-Null  center-Null  right-Null 9  center-Null  right-Null 
-# 2  left-Null  right-Null 7  left-Null  center-Null  right-Null 
-# 2  left-Null  center-Null  right-Null 
-# None
-# 
+print "="*80
+print'Second delete tree'
+tree2.root.delete(9)
+print "Tree element inorder"
+print tree2.inorder(tree2.root)
+print "="*40 + " Tree Structure " + "="*40
+print tree2.printTree()
 
-
+l3 = [10, 11, 12]
+[tree2.insert(e) for e in l3]
+print "Tree element inorder"
+print tree2.inorder(tree2.root)
+print "="*40 + " Tree Structure " + "="*40
+print tree2.printTree()
