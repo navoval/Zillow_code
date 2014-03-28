@@ -2,8 +2,11 @@ __author__ = 'changyunglin'
 
 # Question 2: Implement insert and delete in a tri-nary tree.
 # finished build up Tri-Tree
-# finished print our Tri-Tree
-# haven't finish delete node, will update soon
+# finished basic print Tri-Tree
+# finished delete node function
+# finished pretty print Tri-Tree
+
+import pprint
 
 class Node:
 
@@ -164,42 +167,69 @@ class Node:
         node, parent = self.lookUp(value)
         self.deleteNode(node, parent)
 
-    def printTree(self):
+    def printStructure(self):
         '''
-        Print out the tree structure and tell empty nodes.
+        Build Tree shape structure
         '''
         self.root.level = 0
         queue = [self.root]
-        out = []
-        current_level = self.root.level
+        current_level = self.root.level + 1
+        levelDict = {}
+        levelDict[self.root.level] = [str(self.root.data)]
 
         while len(queue) > 0:
+            next_level = []
             current_node = queue.pop(0)
+
             if current_node.level > current_level:
                 current_level += 1
-                out.append("\n")
-            out.append(str(current_node.data) + " ")
 
             if current_node.left:
                 current_node.left.level = current_level + 1
                 queue.append(current_node.left)
+                next_level.append(str(current_node.left.data))
             else:
-                out.append(" left-Null ")
+                next_level.append(" ")
 
             if current_node.center:
                 current_node.center.level = current_level + 1
                 queue.append(current_node.center)
+                next_level.append(str(current_node.center.data))
             else:
-                out.append(" center-Null ")
+                next_level.append(" ")
 
             if current_node.right:
                 current_node.right.level = current_level + 1
                 queue.append(current_node.right)
+                next_level.append(str(current_node.right.data))
             else:
-                out.append(" right-Null ")
+                next_level.append(" ")
 
-        print(''.join(out))
+            if levelDict.has_key(current_level):
+                levelDict[current_level].extend(next_level)
+            else:
+                levelDict[current_level] = next_level
+        print 'Node in each level'
+        pprint.pprint(levelDict)
+        return levelDict
 
+    def prettyPrint(self):
+        '''
+        Pretty print Tree Structure
+        '''
+        structureDict = self.printStructure()
+        levels = len(structureDict.keys())
+        grid = 3**(levels-1)
+        space_list = []
+        for k in structureDict:
+            space = ((grid/3**int(k)))/2    # space for left and right
+            space_list.append(space)
+        print "="*40 + ' Tree shap ' + "="*40
+        for k in structureDict.keys():
+            S = ''
+            for v in structureDict[k]:
+                S += (space_list[k]*' '+ v + space_list[k]*' ')
+            print S
 
 
 l1 = [5, 4, 9, 5, 7, 2, 2]
@@ -214,28 +244,30 @@ print "="*80
 print "Tree element inorder"
 print tree1.inorder(tree1.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree1.printTree()
+print tree1.prettyPrint()
+
+# tree1.print_tree()
 
 print "="*80
-print'First delete tree'
+print'Delete node 7 in tree'
 tree1.root.delete(7)
 print "Tree element inorder"
 print tree1.inorder(tree1.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree1.printTree()
+print tree1.prettyPrint()
 
 print "="*80
-print'Second delete tree'
+print'Delete node 5 in tree'
 tree1.root.delete(5)
 print "Tree element inorder"
 print tree1.inorder(tree1.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree1.printTree()
+print tree1.prettyPrint()
 
 
 print
 print
-print "Test Case 2"
+print "Test Case 2: Add more elements: 9 , 10"
 l2 = [5, 4, 9, 5, 7, 2, 2, 9, 10]
 tree2 = Node()
 
@@ -247,27 +279,21 @@ print "="*80
 print "Tree element inorder"
 print tree2.inorder(tree2.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree2.printTree()
+print tree2.prettyPrint()
 
 print "="*80
-print'First delete tree'
+print'Delete node 7 in tree'
 tree2.root.delete(7)
 print "Tree element inorder"
 print tree2.inorder(tree2.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree2.printTree()
+print tree2.prettyPrint()
 
 print "="*80
-print'Second delete tree'
+print'Delete node 9 in tree'
 tree2.root.delete(9)
 print "Tree element inorder"
 print tree2.inorder(tree2.root)
 print "="*40 + " Tree Structure " + "="*40
-print tree2.printTree()
+print tree2.prettyPrint()
 
-l3 = [10, 11, 12]
-[tree2.insert(e) for e in l3]
-print "Tree element inorder"
-print tree2.inorder(tree2.root)
-print "="*40 + " Tree Structure " + "="*40
-print tree2.printTree()
